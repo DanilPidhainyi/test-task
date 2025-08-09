@@ -142,6 +142,7 @@
     background-color: var(--color-secondary-text);
     margin: auto 0;
     left: calc((var(--step) * (var(--level))) + var(--icon-width) / 2 - 0.5px);
+    z-index: 2;
   }
 
   .tree-node__item {
