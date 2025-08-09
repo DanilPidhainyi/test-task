@@ -1,5 +1,3 @@
-<script setup lang="ts"></script>
-
 <template>
   <h1>You did it!</h1>
   <p>
@@ -7,6 +5,15 @@
     documentation
   </p>
 </template>
+
+<script setup lang="ts">
+import { useStore } from 'vuex'
+import { treeStoreAction } from '@/store/modules/tree.ts'
+
+const store = useStore()
+
+store.dispatch(treeStoreAction.setData)
+</script>
 
 <style scoped lang="scss">
 
