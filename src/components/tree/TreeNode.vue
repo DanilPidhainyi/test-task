@@ -6,8 +6,12 @@
   >
     <li
       class="tree-node__title"
-      :class="{ 'tree-node__title--open': node.isOpen }"
-      @click="onUpdateIsOpen"
+      :class="{
+        'tree-node__title--open': isOpenNode,
+        'tree-node__title--active': isCurrentItem,
+      }"
+      @click="onSelectCurrentItem(node)"
+      @dblclick="onOpenCloseThisNode"
     >
       <icon-arrow class="tree-node__icon" />
       <p class="tree-node__title-text">
@@ -15,24 +19,21 @@
       </p>
     </li>
     <ul
-      v-if="node.isOpen"
+      v-if="isOpenNode"
       class="tree-node__items"
     >
       <template v-if="node.cat && Array.isArray(node.cat)">
         <tree-node
-          v-for="(cat, i) in node.cat"
+          v-for="cat in node.cat"
           :key="cat._nodeId"
           :node="cat"
           :level="level + 1"
-          @update:node="onUpdateNodeByIndex(i, $event)"
-        />
-      </template>
-
-      <template v-if="node.cat && !Array.isArray(node.cat)">
-        <tree-node
-          :node="node.cat"
-          :level="level + 1"
-          @update:node="onUpdateNode"
+          :currentItem="currentItem"
+          :selectedItems="selectedItems"
+          :openNodes="openNodes"
+          @update:selected-items="emit('update:selectedItems', $event)"
+          @update:current-item="emit('update:currentItem', $event)"
+          @update:open-nodes="emit('update:openNodes', $event)"
         />
       </template>
 
@@ -40,6 +41,9 @@
         <li
           v-for="item in node?.leaf"
           class="tree-node__item"
+          :class="{ 'tree-node__item--active': props.currentItem === item._nodeId }"
+          :key="item._nodeId"
+          @click="onSelectCurrentItem(item)"
         >
           {{ item?._name }}
         </li>
@@ -51,27 +55,42 @@
 <script setup lang="ts">
   import type { TreeNode as TreeNodeType } from '@/types/TreeNode.ts'
   import IconArrow from '@/components/tree/IconArrow.vue'
+  import { computed } from 'vue'
+  import { uniquePreserveOrder } from '@/components/tree/uniquePreserveOrder.ts'
 
   interface Props {
     node: TreeNodeType
+    currentItem: string
+    selectedItems: string[]
+    openNodes: string[]
     level: number
   }
 
   const props = defineProps<Props>()
-  const emit = defineEmits(['update:node'])
+  const emit = defineEmits([
+    'update:node',
+    'update:currentItem',
+    'update:selectedItems',
+    'update:openNodes',
+    //
+  ])
+  const isOpenNode = computed(() => props.openNodes.includes(props.node._nodeId))
+  const isCurrentItem = computed(() => props.currentItem === props.node._nodeId)
 
-  const onUpdateIsOpen = () => {
-    emit('update:node', { ...props.node, isOpen: !props.node.isOpen })
+  const onSelectCurrentItem = (node: TreeNodeType) => {
+    emit('update:currentItem', node._nodeId)
+    emit('update:selectedItems', uniquePreserveOrder([...props.selectedItems, node._nodeId]))
   }
 
-  const onUpdateNode = (event: TreeNodeType) => {
-    emit('update:node', { ...props.node, cat: event })
-  }
-
-  const onUpdateNodeByIndex = (index: number, event: TreeNodeType) => {
-    const cat = props.node.cat as TreeNodeType[]
-    cat[index] = event
-    emit('update:node', { ...props.node, cat })
+  const onOpenCloseThisNode = () => {
+    if (isOpenNode.value) {
+      emit(
+        'update:openNodes',
+        props.openNodes.filter(e => e !== props.node._nodeId),
+      )
+    } else {
+      emit('update:openNodes', [...props.openNodes, props.node._nodeId])
+    }
   }
 </script>
 
@@ -96,7 +115,7 @@
     gap: 4px;
   }
 
-  .tree-node__title:hover {
+  .tree-node__title--active {
     background-color: #34495e;
   }
 
@@ -130,8 +149,14 @@
     border-radius: 4px;
     padding-left: calc(var(--step) * (var(--level) + 1));
     color: var(--color-secondary-text);
+    cursor: pointer;
   }
 
+  .tree-node__item--active {
+    background-color: #34495e;
+  }
+
+  .tree-node__title:hover,
   .tree-node__item:hover {
     background-color: #2c3e50;
   }

@@ -1,12 +1,18 @@
 <template>
   <li class="list-item">
-    <p class="list-item__text">List item</p>
+    <p class="list-item__text">
+      {{ text }}
+    </p>
     <icon-delete class="list-item__icon" />
   </li>
 </template>
 
 <script setup lang="ts">
   import IconDelete from '@/components/list/IconDelete.vue'
+
+  defineProps<{
+    text?: string
+  }>()
 </script>
 
 <style scoped lang="scss">
@@ -16,12 +22,16 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 8px 16px;
+    padding: 4px 16px;
     border-radius: 8px;
   }
 
   .list-item:hover {
-    background-color: red;
+    background-color: #db5c5c;
+
+    .list-item__icon {
+      color: white !important;
+    }
   }
 
   .list-item__text {

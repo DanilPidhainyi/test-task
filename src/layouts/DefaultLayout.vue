@@ -19,7 +19,7 @@
 
     .page-layout {
       flex: 1 1 auto;
-      margin: 10vh 0;
+      margin: 5vh 0;
       display: flex;
     }
   }
