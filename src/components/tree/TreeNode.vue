@@ -6,47 +6,73 @@
   >
     <li
       class="tree-node__title"
-      :class="{ 'tree-node__title--open': open }"
-      @click="open = !open"
+      :class="{ 'tree-node__title--open': node.isOpen }"
+      @click="onUpdateIsOpen"
     >
       <icon-arrow class="tree-node__icon" />
-      <p class="tree-node__title-text">Title List</p>
+      <p class="tree-node__title-text">
+        {{ node._name }}
+      </p>
     </li>
     <ul
-      v-if="open"
+      v-if="node.isOpen"
       class="tree-node__items"
     >
-      <tree-node
-        v-if="nextStep"
-        :level="level + 1"
-        :next-step="false"
-        class="item"
-      />
-      <tree-node
-        v-if="nextStep"
-        :level="level + 1"
-        :next-step="false"
-        class="item"
-      />
-      <li class="tree-node__item item">Item</li>
-      <li class="tree-node__item item">Item</li>
+      <template v-if="node.cat && Array.isArray(node.cat)">
+        <tree-node
+          v-for="(cat, i) in node.cat"
+          :key="cat._nodeId"
+          :node="cat"
+          :level="level + 1"
+          @update:node="onUpdateNodeByIndex(i, $event)"
+        />
+      </template>
+
+      <template v-if="node.cat && !Array.isArray(node.cat)">
+        <tree-node
+          :node="node.cat"
+          :level="level + 1"
+          @update:node="onUpdateNode"
+        />
+      </template>
+
+      <template v-if="node.leaf?.length">
+        <li
+          v-for="item in node?.leaf"
+          class="tree-node__item"
+        >
+          {{ item?._name }}
+        </li>
+      </template>
     </ul>
   </ul>
 </template>
 
 <script setup lang="ts">
+  import type { TreeNode as TreeNodeType } from '@/types/TreeNode.ts'
   import IconArrow from '@/components/tree/IconArrow.vue'
-  import { ref } from 'vue'
 
-  const props = withDefaults(
-    defineProps<{
-      level?: number
-      nextStep?: boolean
-    }>(),
-    { level: 1, nextStep: false },
-  )
+  interface Props {
+    node: TreeNodeType
+    level: number
+  }
 
-  const open = ref(true)
+  const props = defineProps<Props>()
+  const emit = defineEmits(['update:node'])
+
+  const onUpdateIsOpen = () => {
+    emit('update:node', { ...props.node, isOpen: !props.node.isOpen })
+  }
+
+  const onUpdateNode = (event: TreeNodeType) => {
+    emit('update:node', { ...props.node, cat: event })
+  }
+
+  const onUpdateNodeByIndex = (index: number, event: TreeNodeType) => {
+    const cat = props.node.cat as TreeNodeType[]
+    cat[index] = event
+    emit('update:node', { ...props.node, cat })
+  }
 </script>
 
 <style scoped lang="scss">

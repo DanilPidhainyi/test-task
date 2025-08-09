@@ -1,9 +1,9 @@
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import tree from '@/store/modules/tree'
 
-const store = new Vuex.Store({
+const store = createStore({
   modules: {
-    tree,
+    treeStore: tree,
   },
 })
 

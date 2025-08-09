@@ -2,7 +2,10 @@
   <default-layout>
     <div class="container">
       <div class="tree-wrapper">
-        <tree />
+        <tree
+          :tree="treeNode"
+          @update:tree="updateTreeNode"
+        />
       </div>
       <div class="list-wrapper">
         <list />
@@ -17,10 +20,14 @@
   import DefaultLayout from '@/layouts/DefaultLayout.vue'
   import Tree from '@/components/tree/Tree.vue'
   import List from '@/components/list/List.vue'
+  import { computed } from 'vue'
+  import type { TreeNode } from '@/types/TreeNode.ts'
 
   const store = useStore()
-
-  store.dispatch(treeStoreAction.setData)
+  const treeNode = computed(() => store.state.treeStore.tree)
+  const updateTreeNode = (node: TreeNode) => {
+    store.dispatch(treeStoreAction.setTree, node)
+  }
 </script>
 
 <style scoped lang="scss">
