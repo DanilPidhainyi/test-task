@@ -1,24 +1,18 @@
-const state = {
+const state = {}
 
-}
-
-const mutations = {
-
-}
+const mutations = {}
 
 export const treeStoreAction = {
   setData: '[tree] setData',
 }
 
 const actions = {
-  [treeStoreAction.setData] () {
+  [treeStoreAction.setData]() {
     console.log('store')
-  }
+  },
 }
 
-const getters = {
-
-}
+const getters = {}
 
 export default {
   state,
