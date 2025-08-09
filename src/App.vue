@@ -31,7 +31,7 @@
   import List from '@/components/list/List.vue'
   import { computed } from 'vue'
   import tree from '@/tree.json'
-  import { normalizeTree } from '@/components/tree/helpers.ts'
+  import { findPathToNode, normalizeTree } from '@/components/tree/helpers.ts'
 
   const nodes = normalizeTree(tree.tree.cat)
 
@@ -40,9 +40,9 @@
   const selectedItems = computed(() => store.state.treeStore.selectedItems)
   const openNodes = computed(() => store.state.treeStore.openNodes)
 
-  // const updateTreeNode = (node: TreeNode) => {
-  //   store.dispatch(treeStoreAction.setTree, node)
-  // }
+  store.dispatch(treeStoreAction.loadStateFromStorage)
+
+  store.dispatch(treeStoreAction.setOpenNodes, findPathToNode(currentItem.value, [nodes]))
 </script>
 
 <style scoped lang="scss">

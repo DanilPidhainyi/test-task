@@ -1,10 +1,8 @@
-import tree from '@/tree.json'
-import type { TreeNode } from '@/types/TreeNode.ts'
-
 export const treeStoreAction = {
   setCurrentItem: '[tree] setCurrentItem',
   setSelectedItem: '[tree] setSelectedItem',
   setOpenNodes: '[tree] setOpenNodes',
+  loadStateFromStorage: '[tree] loadStateFromStorage',
 }
 
 interface State {
@@ -36,16 +34,28 @@ const mutations = {
 const actions = {
   [treeStoreAction.setCurrentItem]({ commit }, n: string) {
     commit('setCurrentItem', n)
-    // todo add localStorage for current item
+    localStorage.setItem('currentItem', JSON.stringify(n))
   },
 
   [treeStoreAction.setSelectedItem]({ commit }, n: string) {
     commit('setSelectedItem', n)
-    // todo add localStorage for current item
+    localStorage.setItem('selectedItems', JSON.stringify(n))
   },
 
   [treeStoreAction.setOpenNodes]({ commit }, n: string) {
     commit('setOpenNodes', n)
+  },
+
+  [treeStoreAction.loadStateFromStorage]({ commit }) {
+    const currentItem = localStorage.getItem('currentItem')
+    if (currentItem) {
+      commit('setCurrentItem', JSON.parse(currentItem))
+    }
+
+    const selectedItems = localStorage.getItem('selectedItems')
+    if (selectedItems) {
+      commit('setSelectedItem', JSON.parse(selectedItems))
+    }
   },
 }
 
